@@ -80,6 +80,12 @@ class OptimizationProblem:
         return [self.cities.iloc[i]['city'] for i in solution]
 
 # 1. Genetic Algorithm (GA)
+# Time Complexity: O(generations * pop_size^2 * n)
+# Where:
+#   - generations: number of evolutionary iterations
+#   - pop_size: population size
+#   - n: number of cities in the TSP problem
+# Space Complexity: O(pop_size * n)
 class GeneticAlgorithm:
     def __init__(self, problem, pop_size=100, elite_size=20, mutation_rate=0.01, generations=100):
         self.problem = problem
@@ -233,6 +239,11 @@ class GeneticAlgorithm:
         }
 
 # 2. Simulated Annealing (SA)
+# Time Complexity: O(iterations * n)
+# Where:
+#   - iterations: number of cooling iterations
+#   - n: number of cities in the TSP problem
+# Space Complexity: O(n)
 class SimulatedAnnealing:
     def __init__(self, problem, initial_temp=1000, cooling_rate=0.003, iterations=1000):
         self.problem = problem
@@ -292,11 +303,15 @@ class SimulatedAnnealing:
             'algorithm': 'Simulated Annealing',
             'solution': best_solution,
             'distance': best_distance,
-            'time': end_time - start_time,
-            'history': self.history
+            'time': end_time - start_time,            'history': self.history
         }
 
 # 3. Tabu Search
+# Time Complexity: O(iterations * n²)
+# Where:
+#   - iterations: number of search iterations
+#   - n: number of cities in the TSP problem (neighborhood generation is O(n²))
+# Space Complexity: O(tabu_size + n²)
 class TabuSearch:
     def __init__(self, problem, tabu_size=20, iterations=1000):
         self.problem = problem
@@ -382,11 +397,16 @@ class TabuSearch:
             'algorithm': 'Tabu Search',
             'solution': best_solution,
             'distance': best_distance,
-            'time': end_time - start_time,
-            'history': self.history
+            'time': end_time - start_time,            'history': self.history
         }
 
 # 4. Particle Swarm Optimization (PSO)
+# Time Complexity: O(iterations * num_particles * n)
+# Where:
+#   - iterations: number of optimization iterations
+#   - num_particles: number of particles in the swarm
+#   - n: number of cities in the TSP problem
+# Space Complexity: O(num_particles * n)
 class ParticleSwarmOptimization:
     def __init__(self, problem, num_particles=30, w=0.5, c1=1, c2=2, iterations=100):
         self.problem = problem
@@ -519,7 +539,30 @@ def main():
     print("Creating optimization problem...")
     problem = OptimizationProblem(df)
     
-    # Run the four algorithms
+    # Define algorithm complexity information
+    complexity_info = {
+        "Genetic Algorithm": {
+            "time": "O(generations * pop_size² * n)",
+            "space": "O(pop_size * n)",
+            "explanation": "Where n is the number of cities, high complexity due to population operations"
+        },
+        "Simulated Annealing": {
+            "time": "O(iterations * n)",
+            "space": "O(n)",
+            "explanation": "Where n is the number of cities, linear complexity with iterations"
+        },
+        "Tabu Search": {
+            "time": "O(iterations * n²)",
+            "space": "O(tabu_size + n²)",
+            "explanation": "Where n is the number of cities, quadratic due to neighborhood generation"
+        },
+        "Particle Swarm Optimization": {
+            "time": "O(iterations * num_particles * n)",
+            "space": "O(num_particles * n)",
+            "explanation": "Where n is the number of cities, linear scaling with particles and iterations"
+        }
+    }
+      # Run the four algorithms
     algorithms = [
         GeneticAlgorithm(problem, generations=100),
         SimulatedAnnealing(problem, iterations=1000),
@@ -534,6 +577,8 @@ def main():
         results.append(result)
         print(f"Best distance: {result['distance']:.2f} km")
         print(f"Execution time: {result['time']:.2f} seconds")
+        print(f"Time Complexity: {complexity_info[result['algorithm']]['time']}")
+        print(f"Space Complexity: {complexity_info[result['algorithm']]['space']}")
         print("-" * 40)
     
     # Visualize the convergence of algorithms
@@ -542,7 +587,6 @@ def main():
         # Normalize iterations for comparison (different algorithms have different numbers of iterations)
         x = np.linspace(0, 1, len(result['history']))
         plt.plot(x, result['history'], label=result['algorithm'])
-    
     plt.title('Convergence of Optimization Algorithms', fontsize=15)
     plt.xlabel('Normalized Iterations')
     plt.ylabel('Tour Distance (km)')
@@ -615,8 +659,7 @@ def main():
         'Best Distance (km)': distances,
         'Execution Time (s)': times,
     })
-    
-    # Add normalized scores (0-100 where 100 is best)
+      # Add normalized scores (0-100 where 100 is best)
     min_dist = min(distances)
     min_time = min(times)
     
@@ -630,6 +673,49 @@ def main():
     
     # Save the summary table
     summary.to_csv('algorithm_comparison.csv', index=False)
+    
+    # Create a complexity visualization
+    plt.figure(figsize=(12, 8))
+    
+    # Create a table with algorithm complexities
+    algo_names = list(complexity_info.keys())
+    time_complexities = [complexity_info[algo]['time'] for algo in algo_names]
+    space_complexities = [complexity_info[algo]['space'] for algo in algo_names]
+    explanations = [complexity_info[algo]['explanation'] for algo in algo_names]
+    
+    complexity_df = pd.DataFrame({
+        'Algorithm': algo_names,
+        'Time Complexity': time_complexities,
+        'Space Complexity': space_complexities,
+        'Explanation': explanations
+    })
+    
+    # Plot as a table
+    plt.axis('off')
+    table = plt.table(
+        cellText=complexity_df.values,
+        colLabels=complexity_df.columns,
+        cellLoc='center',
+        loc='center',
+        colWidths=[0.25, 0.25, 0.25, 0.5]
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.5)
+    
+    plt.title('Algorithm Complexity Analysis', fontsize=15)
+    plt.tight_layout()
+    plt.savefig('complexity_comparison.png', dpi=300, bbox_inches='tight')
+    
+    # Also print the complexity information
+    print("\nAlgorithm Complexity Analysis:")
+    for algo in algo_names:
+        print(f"{algo}:")
+        print(f"  Time Complexity: {complexity_info[algo]['time']}")
+        print(f"  Space Complexity: {complexity_info[algo]['space']}")
+        print(f"  {complexity_info[algo]['explanation']}")
+        print()
+    
     print("\nVisualizations and summary saved.")
 
 if __name__ == "__main__":

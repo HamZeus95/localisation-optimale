@@ -18,22 +18,30 @@ The optimization problem is to find the shortest possible route that visits the 
 - Based on natural selection and genetic operations
 - Uses crossover, mutation, and selection to evolve better solutions
 - Generally provides high-quality solutions but is computationally intensive
+- **Time Complexity**: O(generations * pop_size² * n)
+- **Space Complexity**: O(pop_size * n)
 
 ### Simulated Annealing (SA)
 - Inspired by the annealing process in metallurgy
 - Gradually reduces the probability of accepting worse solutions
 - Balances exploration and exploitation
 - Usually fast with good quality solutions
+- **Time Complexity**: O(iterations * n)
+- **Space Complexity**: O(n)
 
 ### Tabu Search
 - Uses memory structures (tabu lists) to avoid revisiting recent solutions
 - Effective at escaping local optima
 - Good at finding high-quality solutions in complex search spaces
+- **Time Complexity**: O(iterations * n²)
+- **Space Complexity**: O(tabu_size + n²)
 
 ### Particle Swarm Optimization (PSO)
 - Inspired by social behavior of bird flocking or fish schooling
 - Each particle moves based on its own experience and the global best
 - Effective for continuous optimization problems but adapted here for TSP
+- **Time Complexity**: O(iterations * num_particles * n)
+- **Space Complexity**: O(num_particles * n)
 
 ## Files
 
